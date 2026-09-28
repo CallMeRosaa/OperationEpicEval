@@ -11,6 +11,12 @@
 
 An AI assistant coaches members, scores the writing against the award rubric, suggests edits, and speeds up supervisor reviews. Humans stay in the loop for every decision.
 
+**Pathfinder.**
+This project is also a deliberate **benchmark of DAF speed to capability**: how fast an identified gap can go from idea to an MVP and IOC in an IL4/IL5 environment under current processes, technology and regulations. We move as fast as policy allows and instrument every step:
+- Days from approval to IL4/IL5 environment, DevSecOps pipeline, ATO / cATO, MVP in a testable environment, and IOC
+- Every approval, handoff, wait and blocker, with owner and duration, turned into a playbook and a list of policy and process gaps
+- Stakeholders exercised: cyber and comm/IT, software factories, the AI Factory, privacy and legal, CFMs, MAJCOM and HQ, and DAF/A1 policy owners
+
 **Who benefits**
 - **Members:** 30-second capture, never lose an accomplishment, see gaps early.
 - **Supervisors/raters:** a live view of their people's work, faster and more consistent packages.

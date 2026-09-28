@@ -8,6 +8,12 @@ Evaluations and awards are valuable. The process around them is not. Records are
 ## Goal
 **Give that time back to the warfighter.** Cut the non-value-added time spent creating, coordinating, evaluating, editing and routing, while the records get better, not worse (ADR-0004).
 
+## Pathfinder
+This project is also a deliberate **benchmark of DAF speed to capability**: how fast an identified gap can go from idea to an MVP and IOC in an IL4/IL5 environment under current processes, technology and regulations. We move as fast as policy allows and instrument every step:
+- Days from approval to IL4/IL5 environment, DevSecOps pipeline, ATO / cATO, MVP in a testable environment, and IOC
+- Every approval, handoff, wait and blocker, with owner and duration, turned into a playbook and a list of policy and process gaps
+- Stakeholders exercised: cyber and comm/IT, software factories, the AI Factory, privacy and legal, CFMs, MAJCOM and HQ, and DAF/A1 policy owners
+
 ## Three layers
 1. **Capture.** Members journal what they did, when, and the impact, all year.
 2. **Context.** A **document library** of writing guides, award SOPs and sanitized example packages teaches the AI the unit's playbook, with citations. Each unit's award catalog is codified: who can apply (by flight or section), format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 5-10 minute guided interview (`docs/architecture/sel-setup-interview.md`), inheriting from group and wing.
