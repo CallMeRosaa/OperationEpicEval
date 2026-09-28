@@ -1,0 +1,32 @@
+# Secrets & env
+.env
+*.env
+!*.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.tfvars
+!*.tfvars.example
+
+# Terraform
+.terraform/
+*.tfstate*
+
+# Model weights & data (never in git)
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.onnx
+data/raw/
+data/cui/
+
+# Build / deps
+node_modules/
+__pycache__/
+.venv/
+dist/
+build/
+.ipynb_checkpoints/
+.DS_Store
