@@ -1,0 +1,72 @@
+# ILLUSTRATIVE example of what the SEL setup interview produces.
+# Org names come from the user's example. Award names, rules and dates are placeholders.
+# No personnel data belongs in this file.
+
+unit:
+  name: 96th Maintenance Squadron
+  parent: 96th Maintenance Group            # higher-level awards live on the parent
+  sel_role: SEL
+  sub_units:
+    - name: Munitions Flight
+      sections: []                          # add sections if awards are scoped that tightly
+    - name: PMEL Flight
+      sections: []
+
+# Who can apply for what: a list of org units per award.
+# "includes_subunits: true" means everyone below that unit is eligible.
+# "criteria" is optional and only used when an award is narrower than a whole unit.
+award_programs:
+  - id: sq-maint-pro-qtr
+    name: Maintenance Professional of the Quarter
+    cadence: QUARTERLY
+    eligible:
+      - { unit: Munitions Flight, includes_subunits: true }
+      - { unit: PMEL Flight,      includes_subunits: true }
+    categories: [Airman, NCO, SNCO, Civilian]   # optional; free labels the unit already uses
+    format:
+      style: NARRATIVE
+      sections:
+        - name: Job Performance in Primary Duty
+          statements: { min: 5, max: 5 }
+          max_lines_per_statement: 6
+      line_fit: { form: AF1206, font: Times New Roman, size_pt: 12, width_in: 7.5 }
+    advances_to: 96 MXG / Maintenance Professional of the Quarter
+
+  - id: munitions-flight-award
+    name: Munitions Flight Excellence Award (placeholder)
+    cadence: QUARTERLY
+    eligible:
+      - { unit: Munitions Flight, includes_subunits: true }
+    format:
+      style: NARRATIVE
+      sections:
+        - name: Accomplishments
+          statements: { min: 3, max: 3 }
+          max_lines_per_statement: 4
+
+  - id: pmel-inspector-award
+    name: PMEL Inspector Award (placeholder)
+    cadence: SEMIANNUAL
+    eligible:
+      - { unit: PMEL Flight, includes_subunits: true, criteria: { duty_titles_any: [Inspector] } }
+    format:
+      style: BULLET
+      sections:
+        - name: Inspection Excellence
+          statements: { min: 4, max: 6 }
+          max_lines_per_statement: 1
+
+routing:
+  default:
+    - { role: MEMBER,            action: DRAFT }
+    - { role: FIRST_SUPERVISOR,  action: REVIEW,     can_return: true }
+    - { role: FLIGHT_LEADERSHIP, action: COORDINATE, can_return: true }
+    - { role: SEL,               action: APPROVE_NOMINATION }
+    - { role: BOARD,             action: SCORE }
+
+suspenses:                                  # offsets from end of the period, per award or default
+  default:
+    - { step: MEMBER,            due: "+5d",  label: Drafts due to first supervisor }
+    - { step: FIRST_SUPERVISOR,  due: "+10d", label: Supervisor review complete }
+    - { step: FLIGHT_LEADERSHIP, due: "+15d", label: Drafts due to flight leadership }
+    - { step: SEL,               due: "+20d", label: Nominations due to SEL }

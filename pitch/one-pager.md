@@ -4,7 +4,7 @@
 
 **Solution.** One secure, CAC-enabled ecosystem with three layers:
 1. **Capture:** members log accomplishments as they happen.
-2. **Context:** each unit's awards are codified (tiers, format rules, rubric, routing, suspense dates). The SEL sets it up in about 15 minutes from a wing template.
+2. **Context:** each unit's awards are codified (who can apply, format rules, rubric, routing, suspense dates). The SEL sets it up in a 5-10 minute guided interview, inheriting from group and wing.
 3. **Coordination:** packages route member > supervisor > flight > SEL > board with comments, tracked edits and deadline tracking.
 
 An AI assistant coaches members, scores the writing against the award rubric, suggests edits, and speeds up supervisor reviews. Humans stay in the loop for every decision.

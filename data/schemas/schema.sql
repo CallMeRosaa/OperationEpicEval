@@ -55,14 +55,6 @@ CREATE TABLE supervision (               -- who is whose first supervisor
 );
 
 -- ===== Award catalog & rules =====
-CREATE TABLE tier (
-  id          UUID PRIMARY KEY,
-  org_unit_id UUID NOT NULL REFERENCES org_unit(id),
-  code        TEXT NOT NULL,
-  label       TEXT NOT NULL,
-  eligibility JSONB NOT NULL             -- {"grades":["E-7","E-8"],"duty_titles_any":["Inspector"]}
-);
-
 CREATE TABLE award_program (
   id           UUID PRIMARY KEY,
   org_unit_id  UUID NOT NULL REFERENCES org_unit(id),   -- owner level (wing template or unit override)
@@ -70,14 +62,23 @@ CREATE TABLE award_program (
   name         TEXT NOT NULL,
   cadence      TEXT NOT NULL CHECK (cadence IN ('QUARTERLY','SEMIANNUAL','ANNUAL','AD_HOC')),
   advances_to  UUID REFERENCES award_program(id),
-  overrides_id UUID REFERENCES award_program(id)        -- unit override of a wing template
+  overrides_id UUID REFERENCES award_program(id),       -- unit override of a group/wing award
+  categories   TEXT[]                                    -- optional labels the unit uses, e.g. {Airman,NCO,SNCO,Civilian}
+);
+
+CREATE TABLE award_eligibility (          -- "who can apply": which org units, optionally narrowed
+  id                UUID PRIMARY KEY,
+  award_program_id  UUID NOT NULL REFERENCES award_program(id) ON DELETE CASCADE,
+  org_unit_id       UUID NOT NULL REFERENCES org_unit(id),
+  includes_subunits BOOLEAN NOT NULL DEFAULT true,
+  criteria          JSONB                -- optional, e.g. {"duty_titles_any":["Inspector"]}
 );
 
 CREATE TABLE award_rule_version (
   id               UUID PRIMARY KEY,
   award_program_id UUID NOT NULL REFERENCES award_program(id),
   version          INT NOT NULL,
-  rules            JSONB NOT NULL,       -- format, sections, statement counts, max lines, line_fit, tiers
+  rules            JSONB NOT NULL,       -- format, sections, statement counts, max lines, line_fit
   rubric           JSONB NOT NULL,       -- scoring criteria and weights (AI scorer + board)
   created_by       UUID REFERENCES member(id),
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -174,7 +175,7 @@ CREATE TABLE package (
   kind             TEXT NOT NULL CHECK (kind IN ('NOMINATION','EVALUATION')),
   award_cycle_id   UUID REFERENCES award_cycle(id),     -- nominations
   rating_period_id UUID REFERENCES rating_period(id),   -- evaluations
-  tier_id          UUID REFERENCES tier(id),
+  category         TEXT,                                -- optional, from award_program.categories
   current_step     INT NOT NULL DEFAULT 0,              -- index into routing template steps
   current_holder   UUID REFERENCES member(id),          -- whose inbox it is in
   status           TEXT NOT NULL DEFAULT 'DRAFT' CHECK (status IN
@@ -249,4 +250,5 @@ CREATE INDEX ON entry (member_id, occurred_on);
 CREATE INDEX ON rating_period (member_id, start_date, end_date);
 CREATE INDEX ON package (current_holder, status);
 CREATE INDEX ON org_unit (parent_id);
+CREATE INDEX ON award_eligibility (org_unit_id);
 CREATE INDEX ON cycle_milestone (due_at);

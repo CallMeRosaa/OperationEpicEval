@@ -7,13 +7,13 @@ Accomplishments get recalled from memory at the end of the period. That causes l
 
 ## Three layers
 1. **Capture.** Members journal what they did, when, and the impact, all year.
-2. **Context.** Each unit's award catalog is codified: tiers, format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 10-15 minute guided setup, inheriting from a wing template.
+2. **Context.** Each unit's award catalog is codified: who can apply (by flight or section), format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 5-10 minute guided interview (`docs/architecture/sel-setup-interview.md`), inheriting from group and wing.
 3. **Coordination.** Packages route member > first supervisor > flight leadership > SEL > board, with inline comments, tracked edits, return and forward, and deadline tracking.
 
 An **AI assistant** works across all three: it coaches the member, scores the writing against the award rubric, suggests edits, and helps supervisors review. It is advisory only, and humans make every decision.
 
 ```
-Journal ─▶ Pick award (eligible tier auto-detected) ─▶ Draft (rules checked live, AI coach)
+Journal ─▶ Pick award (only ones their unit can apply for) ─▶ Draft (rules checked live, AI coach)
         ─▶ Supervisor ⇄ member (comments, AI score, tracked edits) ─▶ Flight ─▶ SEL ─▶ Board
 ```
 
@@ -43,9 +43,9 @@ Journal ─▶ Pick award (eligible tier auto-detected) ─▶ Draft (rules chec
 | Folder | Purpose |
 |---|---|
 | `app/backend/src/core/` | `org`, `awards`, `cycles`, `admin`, `entries`, `periods`, `bullets`, `packages`, `routing`, `formatting`, `export` |
-| `ai/` | `assist/{coach, scorer, editor, reviewer-copilot}`, models, inference, RAG, prompts, evals, guardrails |
+| `ai/` | `assist/{setup-guide, coach, scorer, editor, reviewer-copilot}`, models, inference, RAG, prompts, evals, guardrails |
 | `data/` | Schemas (`schemas/schema.sql`), migrations, synthetic data |
-| `config/award-rules/` | Award rules as data: wing template example (fictional 999 TW) |
+| `config/award-rules/` | Award rules as data: illustrative 96 MXS example |
 | `infra/` | Terraform (AWS/Azure), Kubernetes, containers, air-gap bundling |
 | `pipelines/`, `.github/` | CI/CD (DevSecOps) |
 | `security/` | SBOMs, scanners, STIGs, signing |
