@@ -20,7 +20,7 @@ def hdr(c,doc):
     c.drawRightString(W-M,H-0.30*inch,"DRAFT  ·  PRE-DECISIONAL  ·  SEP 2026")
     c.setFont("Helvetica-Bold",23); c.drawString(M,H-0.64*inch,"Evaluation & Awards Ecosystem")
     c.setFont("Helvetica",9.5)
-    c.drawString(M,H-0.86*inch,"Proposed by: [Name, Rank]  ·  96th Maintenance Squadron, 96 MXG  ·  [Email / DSN]")
+    c.drawString(M,H-0.86*inch,"Proposed by: Michael Rosa  ·  96th Maintenance Squadron, 96 MXG  ·  Michael.Rosa@us.af.mil")
     # footer
     c.setStrokeColor(LINE); c.setLineWidth(0.5); c.line(M,0.42*inch,W-M,0.42*inch)
     c.setFillColor(INK3); c.setFont("Helvetica",6.8)
@@ -48,7 +48,7 @@ frames=[Frame(M,top-botline_h,W-2*M,botline_h,id="bl",leftPadding=0,rightPadding
         Frame(M,0.52*inch,colw,top-botline_h-0.52*inch-0.08*inch,id="L",leftPadding=0,rightPadding=0,topPadding=0,bottomPadding=0),
         Frame(M+colw+gut,0.52*inch,colw,top-botline_h-0.52*inch-0.08*inch,id="R",leftPadding=0,rightPadding=0,topPadding=0,bottomPadding=0)]
 doc=BaseDocTemplate(out,pagesize=letter,leftMargin=M,rightMargin=M,topMargin=M,bottomMargin=M,
-    title="Evaluation & Awards Ecosystem — Project Charter",author="96 MXS",subject="Proposal to the DAF AI Factory (AFRL)")
+    title="Evaluation & Awards Ecosystem — Project Charter",author="Michael Rosa, 96 MXS",subject="Proposal to the DAF AI Factory (AFRL)")
 doc.addPageTemplates([PageTemplate(id="p",frames=frames,onPage=hdr)])
 
 st=[]
