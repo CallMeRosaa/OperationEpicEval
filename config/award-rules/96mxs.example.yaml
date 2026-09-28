@@ -6,11 +6,17 @@ unit:
   name: 96th Maintenance Squadron
   parent: 96th Maintenance Group            # higher-level awards live on the parent
   sel_role: SEL
-  sub_units:
+  sub_units:                                # Flight > Section > Element
     - name: Munitions Flight
-      sections: []                          # add sections if awards are scoped that tightly
+      sections:
+        - name: Materiel Section
+          elements: [Storage, Inspection, Operations]
+        - name: Production Section
+          elements: [Line Delivery, Conventional Maintenance, PGM]
+        - name: Systems Section
+          elements: [Munitions Control, Plans & Scheduling, Flight (confirm name)]
     - name: PMEL Flight
-      sections: []
+      sections: []                          # to be mapped
 
 # Who can apply for what: a list of org units per award.
 # "includes_subunits: true" means everyone below that unit is eligible.
@@ -49,6 +55,18 @@ award_programs:
     cadence: SEMIANNUAL
     eligible:
       - { unit: PMEL Flight, includes_subunits: true, criteria: { duty_titles_any: [Inspector] } }
+
+  - id: muns-inspector-qtr
+    name: Munitions Inspector of the Quarter (placeholder)
+    cadence: QUARTERLY
+    eligible:
+      - { unit: Inspection, includes_subunits: true }     # element-level scope
+    format:
+      style: NARRATIVE
+      sections:
+        - name: Inspection Excellence
+          statements: { min: 3, max: 3 }
+          max_lines_per_statement: 4
     format:
       style: BULLET
       sections:

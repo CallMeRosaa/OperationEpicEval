@@ -1,0 +1,309 @@
+<title>Awards Ecosystem Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F2F3EE; --surface:#FFFFFF; --sunk:#E7E9E0;
+  --ink:#1B1E15; --ink-2:#4A4F3F; --ink-3:#737866;
+  --olive:#4B5320; --line:#A9AE95;
+  --he:#E3B505; --he-ink:#1B1E15; --he-soft:#F7E9AE;
+  --inert:#2F6690; --inert-soft:#DCE8F2;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#14160F; --surface:#1E2117; --sunk:#262A1E;
+    --ink:#E9EBE0; --ink-2:#B9BDAA; --ink-3:#8C917C;
+    --olive:#A7B26A; --line:#555B45;
+    --he:#E8BE1F; --he-ink:#14160F; --he-soft:#3A3413;
+    --inert:#7FB3DA; --inert-soft:#1D2E3C;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#14160F; --surface:#1E2117; --sunk:#262A1E;
+  --ink:#E9EBE0; --ink-2:#B9BDAA; --ink-3:#8C917C;
+  --olive:#A7B26A; --line:#555B45;
+  --he:#E8BE1F; --he-ink:#14160F; --he-soft:#3A3413;
+  --inert:#7FB3DA; --inert-soft:#1D2E3C;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:15px/1.55 var(--body);padding-inline:20px;padding-block:32px 64px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:56px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1.05}
+h1{font-size:clamp(40px,6vw,64px);font-weight:700;text-transform:uppercase}
+h2{font-size:30px;text-transform:uppercase}
+h3{font-size:21px}
+p{margin:0}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--olive)}
+.lede{max-width:64ch;color:var(--ink-2);font-size:17px}
+header{display:grid;gap:14px;padding-bottom:24px;border-bottom:3px solid var(--olive)}
+.sec-head{display:grid;gap:8px;margin-bottom:22px}
+.sec-head p{color:var(--ink-2);max-width:68ch}
+
+/* layers */
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.layer{background:var(--surface);padding:20px;display:grid;gap:8px;align-content:start}
+.layer .tag{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.layer p{color:var(--ink-2);font-size:14px}
+.ai-bar{grid-column:1/-1;background:var(--inert-soft);color:var(--ink);padding:14px 20px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
+.ai-bar strong{font-family:var(--display);font-size:19px;color:var(--inert);text-transform:uppercase;letter-spacing:.03em}
+.ai-bar span{font-size:14px;color:var(--ink-2)}
+
+/* org chart */
+.chart-shell{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.chart-scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);padding:24px 12px 28px}
+.tree{min-width:860px}
+.tree ul{display:flex;justify-content:center;margin:0;padding:22px 0 0;position:relative}
+.tree>ul{padding-top:0}
+.tree li{list-style:none;position:relative;padding:22px 6px 0;display:flex;flex-direction:column;align-items:center}
+.tree>ul>li{padding-top:0}
+.tree li::before,.tree li::after{content:"";position:absolute;top:0;right:50%;width:50%;height:22px;border-top:2px solid var(--line)}
+.tree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}
+.tree li:only-child{padding-top:0}
+.tree li:first-child::before,.tree li:last-child::after{border:0}
+.tree li:last-child::before{border-right:2px solid var(--line)}
+.tree ul ul::before{content:"";position:absolute;top:0;left:50%;height:22px;border-left:2px solid var(--line)}
+.tree li.on-path::before,.tree li.on-path::after{border-color:var(--line)}
+
+.node{font:inherit;color:inherit;cursor:pointer;background:var(--surface);border:2px solid var(--olive);padding:8px 12px;min-width:120px;text-align:center;display:grid;gap:2px;transition:background .15s,border-color .15s}
+.node .lvl{font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.node .nm{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.1}
+.node:hover{background:var(--sunk)}
+.node:focus-visible,.chip:focus-visible{outline:3px solid var(--inert);outline-offset:2px}
+.node.parent-of-sel{background:var(--he-soft)}
+.node.sel{background:var(--he);border-color:var(--he);color:var(--he-ink)}
+.node.sel .lvl{color:var(--he-ink)}
+.node.ghost{border-style:dashed;cursor:default;color:var(--ink-3);border-color:var(--line)}
+.node.ghost:hover{background:var(--surface)}
+.node.up{border-style:dashed}
+
+.elements{display:grid;gap:6px;margin-top:0;padding-top:14px;position:relative;width:100%;justify-items:center}
+.elements::before{content:"";position:absolute;top:0;left:50%;height:14px;border-left:2px solid var(--line)}
+.chip{font:500 13px/1.2 var(--body);color:var(--ink);background:var(--sunk);border:1px solid transparent;padding:6px 10px;width:100%;max-width:170px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;gap:6px}
+.chip:hover{border-color:var(--olive)}
+.chip.sel{background:var(--he);color:var(--he-ink);font-weight:600}
+.chip .q{font:400 11px var(--mono);color:var(--ink-3)}
+.chip.sel .q{color:var(--he-ink)}
+.chart-note{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+
+/* panel */
+.panel{background:var(--surface);border:1px solid var(--line);padding:20px;display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.panel .who{display:grid;gap:4px}
+.panel .who .path{font:400 12px/1.4 var(--mono);color:var(--ink-3)}
+.awards{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.award{border-left:4px solid var(--olive);background:var(--sunk);padding:10px 12px;display:grid;gap:3px}
+.award.lv-Squadron{border-left-color:var(--he)}
+.award .a-lvl{font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.award .a-nm{font-weight:600;font-size:14px}
+.award .a-fmt{font:400 12px/1.4 var(--mono);color:var(--ink-2)}
+.award .a-up{font-size:12.5px;color:var(--ink-2)}
+.route{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13px}
+.route span.step{background:var(--sunk);padding:3px 8px}
+.route span.arr{color:var(--ink-3)}
+.panel h4{margin:0;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--olive)}
+
+/* flow */
+.flow-scroll{overflow-x:auto}
+.flow{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));min-width:980px;gap:0}
+.stage{padding:16px 14px;border-top:4px solid var(--olive);background:var(--surface);border-right:1px solid var(--line);display:grid;gap:6px;align-content:start;position:relative}
+.stage:last-child{border-right:0}
+.stage.hl{border-top-color:var(--he)}
+.stage .n{font:500 11px/1 var(--mono);color:var(--ink-3)}
+.stage .who{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.1}
+.stage .does{font-size:13px;color:var(--ink-2)}
+.stage .due{font:500 11.5px/1.3 var(--mono);color:var(--ink);background:var(--he-soft);padding:3px 6px;justify-self:start}
+.stage .back{font:400 11.5px/1.3 var(--mono);color:var(--ink-3)}
+.ai-lane{grid-column:1/-1;display:grid;grid-template-columns:subgrid;background:var(--inert-soft);border-top:1px dashed var(--inert)}
+.ai-lane div{padding:10px 14px;font-size:12.5px;color:var(--ink-2);border-right:1px dashed color-mix(in srgb,var(--inert) 35%,transparent)}
+.ai-lane div:last-child{border-right:0}
+.ai-lane b{display:block;font:500 10.5px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--inert);margin-bottom:3px}
+.flow-note{margin-top:10px;font-size:12.5px;color:var(--ink-3)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:3px solid var(--olive);position:relative}
+.phase{padding:18px 16px 18px 0;display:grid;gap:10px;align-content:start;position:relative}
+.phase+.phase{padding-left:16px;border-left:1px solid var(--line)}
+.phase::before{content:"";position:absolute;top:-9px;left:0;width:14px;height:14px;background:var(--ground);border:3px solid var(--olive)}
+.phase+.phase::before{left:-8px}
+.phase.now::before{background:var(--he);border-color:var(--he)}
+.phase .when{font:500 12px/1 var(--mono);color:var(--olive);letter-spacing:.06em}
+.phase ul{margin:0;padding-left:16px;font-size:13.5px;color:var(--ink-2);display:grid;gap:4px}
+.gate{font-size:12.5px;border-top:1px dashed var(--line);padding-top:8px;color:var(--ink)}
+.gate b{font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px}
+.metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.metrics span{font-size:13px;border:1px solid var(--line);padding:5px 10px;background:var(--surface)}
+.metrics b{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--olive);align-self:center;margin-right:4px}
+footer{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
+
+@media (max-width:920px){
+  .chart-shell{grid-template-columns:1fr}
+  .panel{position:static}
+  .road{grid-template-columns:1fr;border-top:0;border-left:3px solid var(--olive)}
+  .phase,.phase+.phase{padding:0 0 22px 22px;border-left:0}
+  .phase::before,.phase+.phase::before{top:2px;left:-9px}
+}
+@media (max-width:640px){
+  .layers{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">AFRL DAF AI Factory · Pitch blueprint · Reference unit 96 MXS</span>
+    <h1>Awards Ecosystem Blueprint</h1>
+    <p class="lede">One secure workspace where Airmen log what they do all year, every unit's award rules are codified, and nomination packages move up the chain with AI help at every step. This page uses the 96th Maintenance Squadron as the worked example.</p>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">How it fits together</span>
+      <h2>Three layers, one assistant</h2>
+    </div>
+    <div class="layers">
+      <div class="layer"><span class="tag">Capture</span><h3>The journal</h3><p>Members jot down jobs, efforts, dates, impact and metrics as they happen. The notes feed any quarterly, semi-annual or annual package.</p></div>
+      <div class="layer"><span class="tag">Context</span><h3>The unit rulebook</h3><p>The SEL maps flights, sections and elements, then sets who can apply for each award, its format, routing and suspense dates. Setup takes 5–10 minutes.</p></div>
+      <div class="layer"><span class="tag">Coordination</span><h3>The routing chain</h3><p>Packages move from the member through supervisors and flight leadership to the SEL and board, with comments, tracked edits and returns.</p></div>
+      <div class="ai-bar"><strong>AI assistant</strong><span>Sets up rules from the SOP · coaches the member · scores the writing against the rubric · suggests edits · helps supervisors review. It is advisory only and never scores people for the board.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Context layer · worked example</span>
+      <h2>96 MXS organization</h2>
+      <p>Select any flight, section or element to see which awards a member assigned there can apply for, and how their package routes. Eligibility stacks: a PGM member sees Production Section, Munitions Flight <em>and</em> squadron awards.</p>
+    </div>
+    <div class="chart-shell">
+      <div>
+        <div class="chart-scroll">
+          <div class="tree" id="tree"></div>
+        </div>
+        <p class="chart-note">Award names and formats are placeholders until the unit's SOPs are loaded. "Flight (confirm name)" under Systems needs confirming, and PMEL sections are still to be mapped.</p>
+      </div>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Coordination layer</span>
+      <h2>A nomination's path</h2>
+      <p>Example: a PGM member's Maintenance Professional of the Quarter package. The unit's routing template sets the steps, and suspense dates are counted from the end of the quarter. Any reviewer can send the package back a step.</p>
+    </div>
+    <div class="flow-scroll">
+      <div class="flow">
+        <div class="stage hl"><span class="n">1</span><span class="who">Member</span><span class="does">Picks eligible award, pulls journal entries, drafts 5 statements.</span><span class="due">Q-end +5d</span></div>
+        <div class="stage"><span class="n">2</span><span class="who">First supervisor</span><span class="does">Reviews, comments inline, suggests edits.</span><span class="due">+10d</span><span class="back">↩ can return to member</span></div>
+        <div class="stage"><span class="n">3</span><span class="who">Section chief</span><span class="does">Production Section coordination.</span><span class="due">+12d</span><span class="back">↩ can return</span></div>
+        <div class="stage"><span class="n">4</span><span class="who">Flight leadership</span><span class="does">Munitions Flight CC / Chief coordinate and forward.</span><span class="due">+15d</span><span class="back">↩ can return</span></div>
+        <div class="stage"><span class="n">5</span><span class="who">SEL</span><span class="does">Approves the squadron's nominee(s).</span><span class="due">+20d</span></div>
+        <div class="stage"><span class="n">6</span><span class="who">96 MXS board</span><span class="does">Scores packages with names removed. Humans score.</span><span class="due">+30d</span></div>
+        <div class="stage hl"><span class="n">7</span><span class="who">Advances</span><span class="does">Winner goes to the 96 MXG Maintenance Professional of the Quarter.</span><span class="due">Group cycle</span></div>
+        <div class="ai-lane">
+          <div><b>Coach</b>Asks for metrics, drafts from entries, runs the 6-line check.</div>
+          <div><b>Copilot</b>Summarizes changes and drafts feedback.</div>
+          <div><b>Editor</b>Tracked-change suggestions and fit-to-lines.</div>
+          <div><b>Scorer</b>Rubric score for the writing, with reasons.</div>
+          <div><b>Status</b>Suspense tracking and overdue nudges.</div>
+          <div><b>None</b>Boards never see AI scores.</div>
+          <div><b>Carry-over</b>Package reformatted to the group's rules.</div>
+        </div>
+      </div>
+    </div>
+    <p class="flow-note">PMEL has no sections mapped yet, so its routing skips step 3. Each unit's SEL sets its own routing.</p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Roadmap · fiscal quarters</span>
+      <h2>From pitch to enterprise</h2>
+      <p>Target timeline starting this quarter (FY27 Q1 is Oct–Dec 2026), gated on AI Factory selection and accreditation.</p>
+    </div>
+    <div class="road">
+      <div class="phase now"><span class="when">FY27 Q1 · NOW</span><h3>0 · Pitch &amp; prototype</h3><ul><li>Clickable demo on synthetic 96 MXS data</li><li>One-pager and deck</li><li>AI Factory submission</li></ul><div class="gate"><b>Exit gate</b>Selected, sponsor named</div></div>
+      <div class="phase"><span class="when">FY27 Q2</span><h3>1 · MVP</h3><ul><li>Journal and SEL setup interview</li><li>Award rules and six-line check</li><li>Routing from member to SEL</li><li>AI coach and editor</li></ul><div class="gate"><b>Exit gate</b>Full cycle runs on synthetic data</div></div>
+      <div class="phase"><span class="when">FY27 Q3</span><h3>2 · 96 MXS pilot</h3><ul><li>IL4 environment on the AI Factory platform</li><li>Privacy Impact Assessment and ATO path</li><li>One real quarterly award cycle</li><li>AI scorer and reviewer copilot</li></ul><div class="gate"><b>Exit gate</b>Pilot metrics met</div></div>
+      <div class="phase"><span class="when">FY27 Q4 – FY28 Q1</span><h3>3 · Group &amp; wing</h3><ul><li>Layered nominations up to 96 MXG and wing</li><li>Group and wing templates</li><li>Board scoring and suspense dashboards</li><li>Evaluation drafts</li></ul><div class="gate"><b>Exit gate</b>New squadron onboarded in under a day</div></div>
+      <div class="phase"><span class="when">FY28+</span><h3>4 · Enterprise</h3><ul><li>Other wings</li><li>AWS GovCloud and Azure Government</li><li>IL5 option</li><li>Export to official systems</li></ul><div class="gate"><b>Exit gate</b>Enterprise sponsor and sustainment funding</div></div>
+    </div>
+    <div class="metrics"><b>Pilot metrics</b><span>Hours saved per package</span><span>Review rounds per package</span><span>% on time at each suspense</span><span>% rule-compliant on first submit</span><span>Journal entries per member per month</span></div>
+  </section>
+
+  <footer>Illustrative. Uses public org structure only, with no personnel data. Award names, formats and dates are placeholders.</footer>
+</div>
+
+<script>
+const N={
+  mxg:{nm:"96 MXG",lvl:"Group",p:null},
+  mxs:{nm:"96 MXS",lvl:"Squadron",p:"mxg"},
+  pmel:{nm:"PMEL Flight",lvl:"Flight",p:"mxs"},
+  muns:{nm:"Munitions Flight",lvl:"Flight",p:"mxs"},
+  mat:{nm:"Materiel",lvl:"Section",p:"muns"},
+  prod:{nm:"Production",lvl:"Section",p:"muns"},
+  sys:{nm:"Systems",lvl:"Section",p:"muns"},
+  stor:{nm:"Storage",lvl:"Element",p:"mat"},
+  insp:{nm:"Inspection",lvl:"Element",p:"mat"},
+  ops:{nm:"Operations",lvl:"Element",p:"mat"},
+  line:{nm:"Line Delivery",lvl:"Element",p:"prod"},
+  conv:{nm:"Conventional Maint.",lvl:"Element",p:"prod"},
+  pgm:{nm:"PGM",lvl:"Element",p:"prod"},
+  ctrl:{nm:"Munitions Control",lvl:"Element",p:"sys"},
+  plans:{nm:"Plans & Scheduling",lvl:"Element",p:"sys"},
+  flt:{nm:"Flight (confirm name)",lvl:"Element",p:"sys"}
+};
+const A=[
+  {nm:"Maintenance Professional of the Quarter",lvl:"Squadron",elig:["mxs"],fmt:"5 narrative statements · ≤ 6 lines each",up:"96 MXG Maintenance Professional of the Quarter"},
+  {nm:"Munitions Flight Excellence Award",lvl:"Flight",elig:["muns"],fmt:"3 statements · ≤ 4 lines each"},
+  {nm:"PMEL Flight Performer of the Quarter",lvl:"Flight",elig:["pmel"],fmt:"3 statements · ≤ 4 lines each"},
+  {nm:"Production Section Top Performer",lvl:"Section",elig:["prod"],fmt:"Monthly · 1 statement · ≤ 3 lines"},
+  {nm:"Munitions Inspector of the Quarter",lvl:"Element",elig:["insp"],fmt:"3 statements · ≤ 4 lines · Inspectors only"}
+];
+const kids=id=>Object.keys(N).filter(k=>N[k].p===id);
+const chain=id=>{const c=[];while(id){c.push(id);id=N[id].p}return c};
+const order={Element:0,Section:1,Flight:2,Squadron:3,Group:4};
+
+function nodeBtn(id,extra=""){return `<button type="button" class="node ${extra}" data-id="${id}"><span class="lvl">${N[id].lvl}</span><span class="nm">${N[id].nm}</span></button>`}
+function build(){
+  const sec=s=>`<li>${nodeBtn(s)}<div class="elements">${kids(s).map(e=>`<button type="button" class="chip" data-id="${e}"><span>${N[e].nm}</span><span class="q">${A.some(a=>a.elig.includes(e))?"★":""}</span></button>`).join("")}</div></li>`;
+  const flight=f=>{const s=kids(f);return `<li>${nodeBtn(f)}${s.length?`<ul>${s.map(sec).join("")}</ul>`:`<ul><li><div class="node ghost"><span class="lvl">Sections</span><span class="nm">To be mapped</span></div></li></ul>`}</li>`};
+  document.getElementById("tree").innerHTML=
+    `<ul><li><div class="node up ghost"><span class="lvl">Group · next rung</span><span class="nm">96 MXG</span></div><ul><li>${nodeBtn("mxs")}<ul>${["muns","pmel"].map(flight).join("")}</ul></li></ul></li></ul>`;
+}
+function select(id){
+  const c=chain(id);
+  document.querySelectorAll("[data-id]").forEach(el=>{
+    const k=el.dataset.id;
+    el.classList.toggle("sel",k===id);
+    el.classList.toggle("parent-of-sel",k!==id&&c.includes(k));
+    el.setAttribute("aria-pressed",k===id);
+  });
+  const mine=A.filter(a=>a.elig.some(e=>c.includes(e))).sort((a,b)=>order[a.lvl]-order[b.lvl]);
+  const path=c.filter(k=>k!=="mxg").reverse().map(k=>N[k].nm).join(" › ");
+  const hasSection=c.some(k=>N[k].lvl==="Section");
+  const flightId=c.find(k=>N[k].lvl==="Flight");
+  const steps=["Member","First supervisor"];
+  if(hasSection)steps.push(N[c.find(k=>N[k].lvl==="Section")].nm+" chief");
+  if(flightId)steps.push(N[flightId].nm.replace(" Flight","")+" flight leadership");
+  steps.push("SEL","Board");
+  document.getElementById("panel").innerHTML=`
+    <div class="who"><h4>Member assigned to</h4><h3>${N[id].nm}</h3><span class="path">${path}</span></div>
+    <div style="display:grid;gap:8px"><h4>Can apply for · ${mine.length}</h4>
+      <ul class="awards">${mine.map(a=>`<li class="award lv-${a.lvl}"><span class="a-lvl">${a.lvl} award</span><span class="a-nm">${a.nm}</span><span class="a-fmt">${a.fmt}</span>${a.up?`<span class="a-up">Winner advances → ${a.up}</span>`:""}</li>`).join("")}</ul>
+    </div>
+    <div style="display:grid;gap:8px"><h4>Package routes</h4>
+      <div class="route">${steps.map(s=>`<span class="step">${s}</span>`).join('<span class="arr">→</span>')}</div>
+    </div>`;
+  try{localStorage.setItem("aeb-sel",id)}catch(e){}
+}
+build();
+document.getElementById("tree").addEventListener("click",e=>{const b=e.target.closest("button[data-id]");if(b)select(b.dataset.id)});
+let start="pgm";try{const s=localStorage.getItem("aeb-sel");if(s&&N[s]&&s!=="mxg")start=s}catch(e){}
+select(start);
+</script>
