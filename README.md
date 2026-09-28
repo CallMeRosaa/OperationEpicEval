@@ -3,11 +3,14 @@
 > **Use case:** A secure, year-round workspace where Airmen and Guardians log their jobs, efforts, accomplishments and dates as they happen. They then turn those notes, with AI help, into bullets, narrative statements, award packages and evaluation inputs for any rating period (quarterly award, semi-annual, or annual evaluation).
 
 ## Problem
-Accomplishments get recalled from memory at the end of the period. That causes lost details, missing metrics, last-minute scrambles for supervisors, and uneven quality between members.
+Evaluations and awards are valuable. The process around them is not. Records are written from memory, then PDFs go back and forth by email for markups at every layer, with 60–80% of it happening right at the deadline. The know-how for writing a strong record lives in scattered PDFs and in the heads of experienced supervisors.
+
+## Goal
+**Give that time back to the warfighter.** Cut the non-value-added time spent creating, coordinating, evaluating, editing and routing, while the records get better, not worse (ADR-0004).
 
 ## Three layers
 1. **Capture.** Members journal what they did, when, and the impact, all year.
-2. **Context.** Each unit's award catalog is codified: who can apply (by flight or section), format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 5-10 minute guided interview (`docs/architecture/sel-setup-interview.md`), inheriting from group and wing.
+2. **Context.** A **document library** of writing guides, award SOPs and sanitized example packages teaches the AI the unit's playbook, with citations. Each unit's award catalog is codified: who can apply (by flight or section), format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 5-10 minute guided interview (`docs/architecture/sel-setup-interview.md`), inheriting from group and wing.
 3. **Coordination.** Packages route member > first supervisor > flight leadership > SEL > board, with inline comments, tracked edits, return and forward, and deadline tracking.
 
 An **AI assistant** works across all three: it coaches the member, scores the writing against the award rubric, suggests edits, and helps supervisors review. It is advisory only, and humans make every decision.
@@ -42,8 +45,8 @@ Journal ─▶ Pick award (only ones their unit can apply for) ─▶ Draft (rul
 ## Layout
 | Folder | Purpose |
 |---|---|
-| `app/backend/src/core/` | `org`, `awards`, `cycles`, `admin`, `entries`, `periods`, `bullets`, `packages`, `routing`, `formatting`, `export` |
-| `ai/` | `assist/{setup-guide, coach, scorer, editor, reviewer-copilot}`, models, inference, RAG, prompts, evals, guardrails |
+| `app/backend/src/core/` | `org`, `awards`, `cycles`, `admin`, `library`, `imports`, `entries`, `periods`, `bullets`, `packages`, `routing`, `formatting`, `export` |
+| `ai/` | `assist/{setup-guide, coach, scorer, editor, reviewer-copilot, sanitizer}`, models, inference, RAG, prompts, evals, guardrails |
 | `data/` | Schemas (`schemas/schema.sql`), migrations, synthetic data |
 | `config/award-rules/` | Award rules as data: illustrative 96 MXS example |
 | `infra/` | Terraform (AWS/Azure), Kubernetes, containers, air-gap bundling |

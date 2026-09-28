@@ -139,6 +139,13 @@ header{display:grid;gap:14px;padding-bottom:24px;border-bottom:3px solid var(--o
 .metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .metrics span{font-size:13px;border:1px solid var(--line);padding:5px 10px;background:var(--surface)}
 .metrics b{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--olive);align-self:center;margin-right:4px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.compare .col{background:var(--surface);padding:20px;display:grid;gap:10px;align-content:start}
+.compare .col.next{background:var(--he-soft)}
+.compare .tag{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.compare ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14.5px;color:var(--ink-2)}
+.compare b{color:var(--ink);font-weight:600}
+@media (max-width:640px){.compare{grid-template-columns:1fr}}
 footer{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
 
 @media (max-width:920px){
@@ -158,8 +165,35 @@ footer{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padd
   <header>
     <span class="eyebrow">AFRL DAF AI Factory · Pitch blueprint · Reference unit 96 MXS</span>
     <h1>Awards Ecosystem Blueprint</h1>
-    <p class="lede">One secure workspace where Airmen log what they do all year, every unit's award rules are codified, and nomination packages move up the chain with AI help at every step. This page uses the 96th Maintenance Squadron as the worked example.</p>
+    <p class="lede">Evaluations and awards are valuable. The hours spent writing, emailing, marking up and re-sending them are not. This ecosystem gives that time back to the warfighter: members log their work all year, the unit's playbook and award rules are built in, and packages move up the chain in one place with AI help at every step. The 96th Maintenance Squadron is the worked example.</p>
   </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Where the time goes</span>
+      <h2>Today vs. with the ecosystem</h2>
+    </div>
+    <div class="compare">
+      <div class="col today"><span class="tag">Today</span>
+        <ul>
+          <li>Accomplishments recalled from memory at the end of the period</li>
+          <li>Writing know-how buried in PDFs and a few supervisors' heads</li>
+          <li>PDF emailed, opened, marked up, saved, emailed back at every layer</li>
+          <li>Version confusion: which copy is current?</li>
+          <li><b>60–80% of the work lands at the deadline</b></li>
+        </ul>
+      </div>
+      <div class="col next"><span class="tag">With the ecosystem</span>
+        <ul>
+          <li>Journal entries logged in 30 seconds as work happens</li>
+          <li>Unit playbook in the library; the AI coaches with citations</li>
+          <li>One live package, reviewed and edited in place, with full history</li>
+          <li>Draft assembled from entries before the quarter closes</li>
+          <li><b>Suspense nudges early; leaders see what's at risk before the deadline</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
   <section>
     <div class="sec-head">
@@ -168,9 +202,9 @@ footer{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padd
     </div>
     <div class="layers">
       <div class="layer"><span class="tag">Capture</span><h3>The journal</h3><p>Members jot down jobs, efforts, dates, impact and metrics as they happen. The notes feed any quarterly, semi-annual or annual package.</p></div>
-      <div class="layer"><span class="tag">Context</span><h3>The unit rulebook</h3><p>The SEL maps flights, sections and elements, then sets who can apply for each award, its format, routing and suspense dates. Setup takes 5–10 minutes.</p></div>
+      <div class="layer"><span class="tag">Context</span><h3>The unit rulebook</h3><p>The SEL maps flights, sections and elements, then sets who can apply for each award, its format, routing and suspense dates. Setup takes 5–10 minutes. A <b>document library</b> of writing guides, SOPs and sanitized past winners teaches the AI the unit's playbook.</p></div>
       <div class="layer"><span class="tag">Coordination</span><h3>The routing chain</h3><p>Packages move from the member through supervisors and flight leadership to the SEL and board, with comments, tracked edits and returns.</p></div>
-      <div class="ai-bar"><strong>AI assistant</strong><span>Sets up rules from the SOP · coaches the member · scores the writing against the rubric · suggests edits · helps supervisors review. It is advisory only and never scores people for the board.</span></div>
+      <div class="ai-bar"><strong>AI assistant</strong><span>Sets up rules from the SOP · coaches from the unit's playbook, with citations · scores the writing against the rubric · suggests edits · helps supervisors review. It is advisory only and never scores people for the board.</span></div>
     </div>
   </section>
 
@@ -228,12 +262,12 @@ footer{font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padd
     </div>
     <div class="road">
       <div class="phase now"><span class="when">FY27 Q1 · NOW</span><h3>0 · Pitch &amp; prototype</h3><ul><li>Clickable demo on synthetic 96 MXS data</li><li>One-pager and deck</li><li>AI Factory submission</li></ul><div class="gate"><b>Exit gate</b>Selected, sponsor named</div></div>
-      <div class="phase"><span class="when">FY27 Q2</span><h3>1 · MVP</h3><ul><li>Journal and SEL setup interview</li><li>Award rules and six-line check</li><li>Routing from member to SEL</li><li>AI coach and editor</li></ul><div class="gate"><b>Exit gate</b>Full cycle runs on synthetic data</div></div>
+      <div class="phase"><span class="when">FY27 Q2</span><h3>1 · MVP</h3><ul><li>Journal and SEL setup interview</li><li>Document library and PDF/Word import</li><li>Award rules and six-line check</li><li>Routing from member to SEL</li><li>AI coach and editor</li></ul><div class="gate"><b>Exit gate</b>Full cycle runs on synthetic data</div></div>
       <div class="phase"><span class="when">FY27 Q3</span><h3>2 · 96 MXS pilot</h3><ul><li>IL4 environment on the AI Factory platform</li><li>Privacy Impact Assessment and ATO path</li><li>One real quarterly award cycle</li><li>AI scorer and reviewer copilot</li></ul><div class="gate"><b>Exit gate</b>Pilot metrics met</div></div>
       <div class="phase"><span class="when">FY27 Q4 – FY28 Q1</span><h3>3 · Group &amp; wing</h3><ul><li>Layered nominations up to 96 MXG and wing</li><li>Group and wing templates</li><li>Board scoring and suspense dashboards</li><li>Evaluation drafts</li></ul><div class="gate"><b>Exit gate</b>New squadron onboarded in under a day</div></div>
       <div class="phase"><span class="when">FY28+</span><h3>4 · Enterprise</h3><ul><li>Other wings</li><li>AWS GovCloud and Azure Government</li><li>IL5 option</li><li>Export to official systems</li></ul><div class="gate"><b>Exit gate</b>Enterprise sponsor and sustainment funding</div></div>
     </div>
-    <div class="metrics"><b>Pilot metrics</b><span>Hours saved per package</span><span>Review rounds per package</span><span>% on time at each suspense</span><span>% rule-compliant on first submit</span><span>Journal entries per member per month</span></div>
+    <div class="metrics"><b>Pilot metrics</b><span><b style="color:var(--ink);letter-spacing:0;text-transform:none;font:600 13px var(--body)">Admin hours returned to the mission</b></span><span>Packages ready before the final week</span><span>Emails and PDF versions eliminated</span><span>Review rounds per package</span><span>% rule-compliant on first submit</span></div>
   </section>
 
   <footer>Illustrative. Uses public org structure only, with no personnel data. Award names, formats and dates are placeholders.</footer>

@@ -236,6 +236,40 @@ CREATE TABLE board_score (
   UNIQUE (package_id, board_member)
 );
 
+-- ===== Knowledge library =====
+CREATE TABLE library_document (
+  id            UUID PRIMARY KEY,
+  scope_unit_id UUID REFERENCES org_unit(id),   -- NULL when personal
+  owner_id      UUID NOT NULL REFERENCES member(id),
+  personal      BOOLEAN NOT NULL DEFAULT false,
+  doc_type      TEXT NOT NULL CHECK (doc_type IN ('WRITING_GUIDE','AWARD_SOP','EXAMPLE_PACKAGE','UNIT_CONTEXT','PRIOR_RECORD','OTHER')),
+  title         TEXT NOT NULL,
+  object_key    TEXT NOT NULL,
+  sha256        TEXT NOT NULL,
+  version       INT NOT NULL DEFAULT 1,
+  supersedes_id UUID REFERENCES library_document(id),
+  status        TEXT NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT','APPROVED','RETIRED')),
+  sanitized     BOOLEAN NOT NULL DEFAULT false,  -- required true for EXAMPLE_PACKAGE before APPROVED
+  approved_by   UUID REFERENCES member(id),
+  uploaded_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (personal OR scope_unit_id IS NOT NULL),
+  CHECK (doc_type <> 'EXAMPLE_PACKAGE' OR status <> 'APPROVED' OR sanitized)
+);
+
+CREATE TABLE document_chunk (
+  id           BIGSERIAL PRIMARY KEY,
+  document_id  UUID NOT NULL REFERENCES library_document(id) ON DELETE CASCADE,
+  page         INT,
+  text         TEXT NOT NULL,
+  embedding    vector(1024)
+);
+
+-- ===== Time-in-step instrumentation (ADR-0004) =====
+CREATE VIEW package_step_durations AS
+SELECT package_id, step_index, actor_id, action, at,
+       at - LAG(at) OVER (PARTITION BY package_id ORDER BY at) AS time_in_previous_step
+FROM routing_event;
+
 CREATE TABLE audit_event (              -- AU family; append-only
   id          BIGSERIAL PRIMARY KEY,
   actor_id    UUID,
