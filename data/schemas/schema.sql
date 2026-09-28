@@ -21,13 +21,93 @@ CREATE TABLE assignment (
   end_date   DATE
 );
 
-CREATE TABLE rating_chain_link (
-  id            UUID PRIMARY KEY,
+-- ===== Org structure =====
+CREATE TABLE org_unit (
+  id         UUID PRIMARY KEY,
+  parent_id  UUID REFERENCES org_unit(id),
+  level      TEXT NOT NULL CHECK (level IN ('WING','GROUP','SQUADRON','FLIGHT','SECTION')),
+  name       TEXT NOT NULL
+);
+
+CREATE TABLE unit_context (              -- mission and priorities; used by the AI
+  org_unit_id UUID PRIMARY KEY REFERENCES org_unit(id),
+  mission     TEXT,
+  priorities  TEXT[],
+  updated_by  UUID REFERENCES member(id),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE unit_role_assignment (
+  id          UUID PRIMARY KEY,
+  org_unit_id UUID NOT NULL REFERENCES org_unit(id),
+  member_id   UUID NOT NULL REFERENCES member(id),
+  role        TEXT NOT NULL CHECK (role IN ('COMMANDER','SEL','FLIGHT_CC','FLIGHT_CHIEF','SUPERVISOR','BOARD','ADMIN')),
+  start_date  DATE NOT NULL,
+  end_date    DATE
+);
+
+CREATE TABLE supervision (               -- who is whose first supervisor
   member_id     UUID NOT NULL REFERENCES member(id),
-  reviewer_id   UUID NOT NULL REFERENCES member(id),
-  role          TEXT NOT NULL CHECK (role IN ('SUPERVISOR','RATER','ADDITIONAL_RATER','REVIEWER')),
+  supervisor_id UUID NOT NULL REFERENCES member(id),
   start_date    DATE NOT NULL,
-  end_date      DATE
+  end_date      DATE,
+  PRIMARY KEY (member_id, supervisor_id, start_date)
+);
+
+-- ===== Award catalog & rules =====
+CREATE TABLE tier (
+  id          UUID PRIMARY KEY,
+  org_unit_id UUID NOT NULL REFERENCES org_unit(id),
+  code        TEXT NOT NULL,
+  label       TEXT NOT NULL,
+  eligibility JSONB NOT NULL             -- {"grades":["E-7","E-8"],"duty_titles_any":["Inspector"]}
+);
+
+CREATE TABLE award_program (
+  id           UUID PRIMARY KEY,
+  org_unit_id  UUID NOT NULL REFERENCES org_unit(id),   -- owner level (wing template or unit override)
+  code         TEXT NOT NULL,
+  name         TEXT NOT NULL,
+  cadence      TEXT NOT NULL CHECK (cadence IN ('QUARTERLY','SEMIANNUAL','ANNUAL','AD_HOC')),
+  advances_to  UUID REFERENCES award_program(id),
+  overrides_id UUID REFERENCES award_program(id)        -- unit override of a wing template
+);
+
+CREATE TABLE award_rule_version (
+  id               UUID PRIMARY KEY,
+  award_program_id UUID NOT NULL REFERENCES award_program(id),
+  version          INT NOT NULL,
+  rules            JSONB NOT NULL,       -- format, sections, statement counts, max lines, line_fit, tiers
+  rubric           JSONB NOT NULL,       -- scoring criteria and weights (AI scorer + board)
+  created_by       UUID REFERENCES member(id),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (award_program_id, version)
+);
+
+CREATE TABLE routing_template (
+  id          UUID PRIMARY KEY,
+  org_unit_id UUID NOT NULL REFERENCES org_unit(id),
+  name        TEXT NOT NULL,
+  steps       JSONB NOT NULL             -- [{"role":"FIRST_SUPERVISOR","action":"REVIEW","can_return":true},...]
+);
+
+CREATE TABLE award_cycle (
+  id                  UUID PRIMARY KEY,
+  award_program_id    UUID NOT NULL REFERENCES award_program(id),
+  rule_version_id     UUID NOT NULL REFERENCES award_rule_version(id),  -- pinned
+  routing_template_id UUID NOT NULL REFERENCES routing_template(id),
+  label               TEXT NOT NULL,     -- "FY27 Q1"
+  period_start        DATE NOT NULL,
+  period_end          DATE NOT NULL,
+  status              TEXT NOT NULL DEFAULT 'OPEN' CHECK (status IN ('SETUP','OPEN','ROUTING','BOARD','CLOSED'))
+);
+
+CREATE TABLE cycle_milestone (
+  id             UUID PRIMARY KEY,
+  award_cycle_id UUID NOT NULL REFERENCES award_cycle(id) ON DELETE CASCADE,
+  step_role      TEXT NOT NULL,
+  label          TEXT NOT NULL,          -- "Drafts due to flight leadership"
+  due_at         TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE rating_period (
@@ -90,10 +170,16 @@ CREATE TABLE bullet_source (            -- traceability: bullet <-> entries
 
 CREATE TABLE package (
   id               UUID PRIMARY KEY,
-  rating_period_id UUID NOT NULL REFERENCES rating_period(id),
-  kind             TEXT NOT NULL CHECK (kind IN ('AWARD','EVALUATION')),
-  award_name       TEXT,
-  status           TEXT NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT','SUBMITTED_FOR_REVIEW','CHANGES_REQUESTED','APPROVED','EXPORTED'))
+  member_id        UUID NOT NULL REFERENCES member(id),
+  kind             TEXT NOT NULL CHECK (kind IN ('NOMINATION','EVALUATION')),
+  award_cycle_id   UUID REFERENCES award_cycle(id),     -- nominations
+  rating_period_id UUID REFERENCES rating_period(id),   -- evaluations
+  tier_id          UUID REFERENCES tier(id),
+  current_step     INT NOT NULL DEFAULT 0,              -- index into routing template steps
+  current_holder   UUID REFERENCES member(id),          -- whose inbox it is in
+  status           TEXT NOT NULL DEFAULT 'DRAFT' CHECK (status IN
+                     ('DRAFT','IN_ROUTING','RETURNED','NOMINATED','AT_BOARD','WON','NOT_SELECTED','EXPORTED','WITHDRAWN')),
+  CHECK ((kind = 'NOMINATION' AND award_cycle_id IS NOT NULL) OR (kind = 'EVALUATION' AND rating_period_id IS NOT NULL))
 );
 
 CREATE TABLE package_item (
@@ -104,13 +190,49 @@ CREATE TABLE package_item (
   PRIMARY KEY (package_id, bullet_id)
 );
 
-CREATE TABLE review (
-  id          UUID PRIMARY KEY,
+-- ===== Coordination =====
+CREATE TABLE routing_event (             -- append-only history
+  id          BIGSERIAL PRIMARY KEY,
   package_id  UUID NOT NULL REFERENCES package(id) ON DELETE CASCADE,
-  reviewer_id UUID NOT NULL REFERENCES member(id),
-  comment     TEXT,
-  decision    TEXT CHECK (decision IN ('COMMENT','CHANGES_REQUESTED','APPROVED')),
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  step_index  INT NOT NULL,
+  actor_id    UUID NOT NULL REFERENCES member(id),
+  action      TEXT NOT NULL CHECK (action IN ('SUBMIT','FORWARD','RETURN','APPROVE','NOMINATE','WITHDRAW','ESCALATE')),
+  to_member   UUID REFERENCES member(id),
+  note        TEXT,
+  at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE comment (
+  id                UUID PRIMARY KEY,
+  package_id        UUID NOT NULL REFERENCES package(id) ON DELETE CASCADE,
+  bullet_version_id UUID REFERENCES bullet_version(id),
+  anchor            JSONB,               -- {"start":12,"end":40} text span
+  parent_id         UUID REFERENCES comment(id),
+  author_id         UUID NOT NULL REFERENCES member(id),
+  body              TEXT NOT NULL,
+  resolved          BOOLEAN NOT NULL DEFAULT false,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE ai_assessment (             -- advisory; never shown to boards (ADR-0003)
+  id              UUID PRIMARY KEY,
+  package_id      UUID NOT NULL REFERENCES package(id) ON DELETE CASCADE,
+  requested_by    UUID NOT NULL REFERENCES member(id),
+  rule_version_id UUID NOT NULL REFERENCES award_rule_version(id),
+  scores          JSONB NOT NULL,        -- {"impact":{"score":4,"reason":"..."}, ...}
+  overall         NUMERIC(3,1),
+  model_id        TEXT NOT NULL,
+  prompt_version  TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE board_score (
+  id          UUID PRIMARY KEY,
+  package_id  UUID NOT NULL REFERENCES package(id),
+  board_member UUID NOT NULL REFERENCES member(id),
+  scores      JSONB NOT NULL,
+  total       NUMERIC(5,1) NOT NULL,
+  UNIQUE (package_id, board_member)
 );
 
 CREATE TABLE audit_event (              -- AU family; append-only
@@ -125,3 +247,6 @@ CREATE TABLE audit_event (              -- AU family; append-only
 
 CREATE INDEX ON entry (member_id, occurred_on);
 CREATE INDEX ON rating_period (member_id, start_date, end_date);
+CREATE INDEX ON package (current_holder, status);
+CREATE INDEX ON org_unit (parent_id);
+CREATE INDEX ON cycle_milestone (due_at);

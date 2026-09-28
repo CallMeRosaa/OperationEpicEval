@@ -1,24 +1,27 @@
 # Domain Model
 
 ```
-Member ──< Assignment (job/duty title, unit, dates)
-   │
-   ├──< Entry (the journal) ──< Attachment
-   │      date, title, what I did, impact, metrics, tags, assignment
-   │
-   ├──< RatingPeriod (type: QUARTERLY_AWARD | SEMIANNUAL | ANNUAL_EVAL, start, end)
-   │      └──< Package (award package or evaluation draft)
-   │             └──< PackageItem ──> Bullet
-   │
-   ├──< Bullet ──< BulletVersion (text, author: member|ai|rater, accepted?)
-   │      └──>< Entry   (every bullet traces back to its source entries)
-   │
-   └──< RatingChainLink (supervisor / rater / additional rater, effective dates)
-            └── Review (comments, status, sign-off on a Package)
+OrgUnit (Wing > Group > Squadron > Flight > Section)   self-referencing tree
+  ├──< UnitContext (mission, priorities, focus areas; feeds the AI)
+  ├──< UnitRoleAssignment (member, role: CC | SEL | FLIGHT_CC | FLIGHT_CHIEF | SUPERVISOR | BOARD, dates)
+  ├──< Tier (eligibility rules)
+  ├──< AwardProgram ──< AwardRuleVersion (format, sections, rubric, advances_to)
+  │        └──< AwardCycle (e.g. FY27 Q1) ──< CycleMilestone (step, due date)
+  └──< RoutingTemplate ──< RoutingStep
+
+Member ──< Assignment (duty title, OrgUnit, supervisor, dates)
+   ├──< Entry (journal) ──< Attachment
+   ├──< Bullet ──< BulletVersion   (author: MEMBER | AI | REVIEWER)
+   │      └──>< Entry              (traceability)
+   └──< Package (kind: NOMINATION | EVALUATION, cycle or rating period, tier)
+          ├──< PackageItem ──> Bullet   (section, position)
+          ├──< RoutingEvent (submit, return, forward, approve; who, when, note)
+          ├──< Comment (anchored to text span, threaded, resolved?)
+          └──< AiAssessment (rubric scores + reasons, model/prompt version)
 ```
 
 ## Key rules
-- An entry can support many bullets, and a bullet can come from many entries.
-- Rating periods can overlap. One entry can count toward a quarterly award AND the annual evaluation.
-- Rating-chain access is time-bound. A former supervisor loses access when the link ends.
-- AI-generated text is always stored as a `BulletVersion` with `author = 'ai'` until a human accepts it.
+- Rules are inherited down the org tree (wing > group > squadron), and the lowest override wins.
+- An award cycle pins a rule version, so later edits don't change packages already in flight.
+- Entries can support many packages across overlapping periods.
+- Supervisors only see packages, never the private journal behind them.

@@ -5,10 +5,16 @@
 ## Problem
 Accomplishments get recalled from memory at the end of the period. That causes lost details, missing metrics, last-minute scrambles for supervisors, and uneven quality between members.
 
-## Core flow
+## Three layers
+1. **Capture.** Members journal what they did, when, and the impact, all year.
+2. **Context.** Each unit's award catalog is codified: tiers, format rules (e.g., 5 statements, 6 lines max), rubric, routing chain and suspense dates. It also holds unit mission and priorities. The SEL stands this up in a 10-15 minute guided setup, inheriting from a wing template.
+3. **Coordination.** Packages route member > first supervisor > flight leadership > SEL > board, with inline comments, tracked edits, return and forward, and deadline tracking.
+
+An **AI assistant** works across all three: it coaches the member, scores the writing against the award rubric, suggests edits, and helps supervisors review. It is advisory only, and humans make every decision.
+
 ```
-Log entry (anytime, 30 sec) ─▶ Rating period ─▶ Bullets / statements (AI-assisted, human-approved)
-                                              ─▶ Award package / evaluation draft ─▶ Supervisor review ─▶ Export
+Journal ─▶ Pick award (eligible tier auto-detected) ─▶ Draft (rules checked live, AI coach)
+        ─▶ Supervisor ⇄ member (comments, AI score, tracked edits) ─▶ Flight ─▶ SEL ─▶ Board
 ```
 
 ## Deployment targets
@@ -29,15 +35,17 @@ Log entry (anytime, 30 sec) ─▶ Rating period ─▶ Bullets / statements (AI
 
 ## Product guardrails
 - **The member owns their journal.** Supervisors see only what is shared with them, following the rating chain.
+- **AI scores the writing, not the person.** AI scores are coaching feedback and are never shown to boards (ADR-0003).
 - **AI drafts, humans decide.** Nothing is auto-submitted, and every AI suggestion can be traced to the member's own entries.
 - **Prep tool, not system of record.** Official evaluations and awards still go through the official systems. This app feeds them.
 
 ## Layout
 | Folder | Purpose |
 |---|---|
-| `app/backend/src/core/` | `periods`, `entries`, `bullets`, `packages`, `reviews`, `export` |
-| `ai/` | `assist` (bullet writing), models, inference, RAG, prompts, evals, guardrails |
+| `app/backend/src/core/` | `org`, `awards`, `cycles`, `admin`, `entries`, `periods`, `bullets`, `packages`, `routing`, `formatting`, `export` |
+| `ai/` | `assist/{coach, scorer, editor, reviewer-copilot}`, models, inference, RAG, prompts, evals, guardrails |
 | `data/` | Schemas (`schemas/schema.sql`), migrations, synthetic data |
+| `config/award-rules/` | Award rules as data: wing template example (fictional 999 TW) |
 | `infra/` | Terraform (AWS/Azure), Kubernetes, containers, air-gap bundling |
 | `pipelines/`, `.github/` | CI/CD (DevSecOps) |
 | `security/` | SBOMs, scanners, STIGs, signing |
