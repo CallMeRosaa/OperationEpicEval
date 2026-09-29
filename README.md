@@ -1,4 +1,4 @@
-# AFRL DAF AI Factory — Evaluation & Awards Ecosystem (working name)
+# OperationEpicEval: Evaluation & Awards Ecosystem
 
 > **Use case:** A secure, year-round workspace where Airmen and Guardians log their jobs, efforts, accomplishments and dates as they happen. They then turn those notes, with AI help, into bullets, narrative statements, award packages and evaluation inputs for any rating period (quarterly award, semi-annual, or annual evaluation).
 
